@@ -33,8 +33,23 @@ jobs:
     - name: Build Executable
       run: mvn clean package
 
-    - name: Upload JAR
-      uses: actions/upload-artifact@v3
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: BlockBookBinder
-        path: target/BlockBookBinder-1.1.0.jar
+        tag_name: "v1.${{ github.run_number }}"
+        release_name: Release "v1.${{ github.run_number }}"
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: target/BlockBookBinder-1.1.0.jar
+        asset_name: BlockBookBinder-1.1.0.jar
+        asset_content_type: application/java-archive
